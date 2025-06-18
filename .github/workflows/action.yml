@@ -24,9 +24,9 @@ jobs:
         with:
           python-version: "3.8"
 
-      - uses: gerlero/brew-install@v1
+      - uses: tecolicom/actions-use-homebrew-tools@v1
         with:
-          packages: lego
+          tools: lego
 
       - name: Obtain SSL Certificates
         env:
