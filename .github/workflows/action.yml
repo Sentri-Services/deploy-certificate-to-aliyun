@@ -36,7 +36,7 @@ jobs:
           ALICLOUD_ACCESS_KEY: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
           ALICLOUD_SECRET_KEY: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
         run: |
-          mkdir -p ~/certs/.lego/certificates
+          sudo mkdir -p ~/certs/.lego/certificates
           lego --email="${{ secrets.EMAIL }}" \
                --domains="${{ secrets.SSL_DOMAINS }}" \
                --path="~/certs/.lego" \
