@@ -42,6 +42,7 @@ jobs:
                --domains="${{ secrets.SSL_DOMAINS }}" \
                --path="${{ github.workspace }}/.lego" \
                --dns="alidns" \
+               --accept-tos \
                run
 
       - name: Install Python dependencies
