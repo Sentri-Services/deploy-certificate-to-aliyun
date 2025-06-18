@@ -1,6 +1,7 @@
 name: Auto Renew and Deploy SSL Certificates
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
