@@ -36,7 +36,7 @@ jobs:
         run: |
           lego --email="${{ secrets.EMAIL }}" \
                --domains="${{ secrets.SSL_DOMAINS }}" \
-               --path="${{ github.workspace }}/certs/.lego" \
+               --path="/var/snap/lego/common/.lego" \
                --dns="alidns" \
                run
 
@@ -56,4 +56,4 @@ jobs:
 
       - name: Clean up
         run: |
-          rm -rf ${{ github.workspace }}/certs
+          rm -rf /var/snap/lego/common/.lego
