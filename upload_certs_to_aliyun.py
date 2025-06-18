@@ -50,10 +50,16 @@ def main():
 
     client = AcsClient(access_key_id, access_key_secret, "cn-hangzhou")
 
-    for domain, cdn_domain in zip(domains, cdn_domains):
+    for cdn_domain in cdn_domains:
+        for domain in domains:
+            if cdn_domain.endswith(domain):
+                break
         cert_path = working_dir / ".lego/certificates/{domain}.crt"
         key_path = working_dir / ".lego/certificates/{domain}.key"
-        upload_certificate(client, cdn_domain, cert_path, key_path)
+
+        assert cert_path.exists(), f"Certificate file {cert_path} does not exist"
+        assert key_path.exists(), f"Key file {key_path} does not exist"
+        # upload_certificate(client, cdn_domain, cert_path, key_path)
 
 
 if __name__ == "__main__":

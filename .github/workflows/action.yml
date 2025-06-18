@@ -43,6 +43,7 @@ jobs:
                --path="${{ github.workspace }}/.lego" \
                --dns="alidns" \
                --accept-tos \
+               --server=https://acme-staging-v02.api.letsencrypt.org/directory \
                run
 
       - name: Install Python dependencies
