@@ -57,8 +57,8 @@ def main():
     client = AcsClient(access_key_id, access_key_secret, "cn-hangzhou")
 
     for domain, cdn_domain in zip(domains, cdn_domains):
-        cert_path = f"/certs/.lego/certificates/{domain}.crt"
-        key_path = f"/certs/.lego/certificates/{domain}.key"
+        cert_path = f".lego/certificates/{domain}.crt"
+        key_path = f".lego/certificates/{domain}.key"
         upload_certificate(client, cdn_domain, cert_path, key_path)
 
 
