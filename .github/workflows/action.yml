@@ -33,10 +33,9 @@ jobs:
           ALICLOUD_ACCESS_KEY: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
           ALICLOUD_SECRET_KEY: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
         run: |
-          sudo mkdir -p ~/certs/.lego/certificates
           lego --email="${{ secrets.EMAIL }}" \
                --domains="${{ secrets.SSL_DOMAINS }}" \
-               --path="~/certs/.lego" \
+               --path="${{ github.workspace }}/certs/.lego" \
                --dns="alidns" \
                run
 
@@ -56,4 +55,4 @@ jobs:
 
       - name: Clean up
         run: |
-          rm -rf ~/certs
+          rm -rf ${{ github.workspace }}/certs
