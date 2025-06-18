@@ -39,6 +39,7 @@ jobs:
         run: |
           lego --email "${{ secrets.EMAIL }}" \
                --domains "${{ secrets.SSL_DOMAINS }}" \
+               --path /certs/.lego \
                --dns alidns \
                run
 
