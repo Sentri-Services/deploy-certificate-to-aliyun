@@ -24,9 +24,9 @@ jobs:
         with:
           python-version: "3.8"
 
-      - name: Install acme.sh
-        run: |
-          sudo snap install lego
+      - uses: gerlero/brew-install@v1
+        with:
+          packages: lego
 
       - name: Obtain SSL Certificates
         env:
@@ -36,7 +36,7 @@ jobs:
         run: |
           lego --email="${{ secrets.EMAIL }}" \
                --domains="${{ secrets.SSL_DOMAINS }}" \
-               --path="/var/snap/lego/common/.lego" \
+               --path="${{ github.workspace }}/.lego" \
                --dns="alidns" \
                run
 
@@ -56,4 +56,4 @@ jobs:
 
       - name: Clean up
         run: |
-          rm -rf /var/snap/lego/common/.lego
+          rm -rf ${{ github.workspace }}/.lego
