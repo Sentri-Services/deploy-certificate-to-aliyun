@@ -1,5 +1,5 @@
 import datetime
-import os
+from pathlib import Path
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkcdn.request.v20180510 import SetCdnDomainSSLCertificateRequest
 
@@ -17,20 +17,15 @@ def file_exists_and_not_empty(file_path):
 
 
 def upload_certificate(client, domain_name, cert_path, key_path):
-    expanded_cert_path = os.path.expanduser(cert_path)
-    expanded_key_path = os.path.expanduser(key_path)
-
-    if not file_exists_and_not_empty(
-        expanded_cert_path
-    ) or not file_exists_and_not_empty(expanded_key_path):
+    if not cert_path.exists() or not key_path.exists():
         raise FileNotFoundError(
             f"Certificate or key file for domain {domain_name} is missing or empty"
         )
 
-    with open(expanded_cert_path, "r") as f:
+    with open(cert_path, "r") as f:
         cert = f.read()
 
-    with open(expanded_key_path, "r") as f:
+    with open(key_path, "r") as f:
         key = f.read()
 
     request = SetCdnDomainSSLCertificateRequest.SetCdnDomainSSLCertificateRequest()
@@ -53,12 +48,15 @@ def main():
     access_key_secret = get_env_var("ALIYUN_ACCESS_KEY_SECRET")
     domains = get_env_var("DOMAINS").split(",")
     cdn_domains = get_env_var("ALIYUN_CDN_DOMAINS").split(",")
+    working_dir = get_env_var("WORKING_DIR")
+    working_dir = Path(working_dir)
+    assert working_dir.exists()
 
     client = AcsClient(access_key_id, access_key_secret, "cn-hangzhou")
 
     for domain, cdn_domain in zip(domains, cdn_domains):
-        cert_path = f".lego/certificates/{domain}.crt"
-        key_path = f".lego/certificates/{domain}.key"
+        cert_path = working_dir / ".lego/certificates/{domain}.crt"
+        key_path = working_dir / ".lego/certificates/{domain}.key"
         upload_certificate(client, cdn_domain, cert_path, key_path)
 
 
