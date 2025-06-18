@@ -24,6 +24,10 @@ jobs:
         with:
           python-version: "3.8"
 
+      - name: Set up Homebrew
+        id: set-up-homebrew
+        uses: Homebrew/actions/setup-homebrew@main
+
       - uses: tecolicom/actions-use-homebrew-tools@v1
         with:
           tools: lego
