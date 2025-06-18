@@ -6,7 +6,7 @@ on:
     branches:
       - main
   schedule:
-    - cron: "0 0 20 */2 *" # 每两个月的第二十天执行一次
+    - cron: "0 0 10 */2 *" # 每两个月的第十天执行一次
 
 permissions:
   contents: write
@@ -43,7 +43,6 @@ jobs:
                --path="${{ github.workspace }}/.lego" \
                --dns="alidns" \
                --accept-tos \
-               --server=https://acme-staging-v02.api.letsencrypt.org/directory \
                run
 
       - name: Install Python dependencies

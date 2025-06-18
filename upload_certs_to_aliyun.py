@@ -59,7 +59,7 @@ def main():
 
         assert cert_path.exists(), f"Certificate file {cert_path} does not exist"
         assert key_path.exists(), f"Key file {key_path} does not exist"
-        # upload_certificate(client, cdn_domain, cert_path, key_path)
+        upload_certificate(client, cdn_domain, cert_path, key_path)
 
 
 if __name__ == "__main__":
