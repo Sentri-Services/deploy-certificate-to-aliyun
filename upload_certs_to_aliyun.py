@@ -1,4 +1,5 @@
 import datetime
+import os
 from pathlib import Path
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkcdn.request.v20180510 import SetCdnDomainSSLCertificateRequest
@@ -9,11 +10,6 @@ def get_env_var(key):
     if not value:
         raise EnvironmentError(f"Environment variable {key} not set")
     return value
-
-
-def file_exists_and_not_empty(file_path):
-    expanded_path = os.path.expanduser(file_path)
-    return os.path.isfile(expanded_path) and os.path.getsize(expanded_path) > 0
 
 
 def upload_certificate(client, domain_name, cert_path, key_path):
