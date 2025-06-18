@@ -28,7 +28,7 @@ def upload_certificate(client, domain_name, cert_path, key_path):
     # CDN加速域名
     request.set_DomainName(domain_name)
     # 证书名称
-    request.set_CertName(domain_name + datetime.datetime.now().strftime("%Y%m%d"))
+    request.set_CertName(domain_name + "-" + datetime.datetime.now().strftime("%Y%m%d"))
     request.set_CertType("upload")
     request.set_SSLProtocol("on")
     request.set_SSLPub(cert)
@@ -59,7 +59,11 @@ def main():
 
         assert cert_path.exists(), f"Certificate file {cert_path} does not exist"
         assert key_path.exists(), f"Key file {key_path} does not exist"
-        upload_certificate(client, cdn_domain, cert_path, key_path)
+        try:
+            upload_certificate(client, cdn_domain, cert_path, key_path)
+        except Exception as e:
+            print(f"Failed to upload certificate for {cdn_domain}: {e}")
+            continue
 
 
 if __name__ == "__main__":
