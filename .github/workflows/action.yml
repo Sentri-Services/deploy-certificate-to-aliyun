@@ -11,6 +11,8 @@ on:
 jobs:
   renew-deploy-cert:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout repository
@@ -24,11 +26,6 @@ jobs:
       - name: Install acme.sh
         run: |
           sudo snap install lego
-
-      - name: Create directory for certificates
-        run: |
-          sudo mkdir -p ~/certs/
-          sudo chown $USER:$USER ~/certs/
 
       - name: Obtain SSL Certificates
         env:
