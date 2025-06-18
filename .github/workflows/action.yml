@@ -31,7 +31,6 @@ jobs:
           sudo chown $USER:$USER ~/certs/
 
       - name: Obtain SSL Certificates
-        working-directory: /certs
         env:
           DOMAINS: ${{ secrets.DOMAINS }}
           ALICLOUD_ACCESS_KEY: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
@@ -47,7 +46,6 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Upload certificates to Alibaba Cloud CDN
-        working-directory: /certs
         env:
           ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
           ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
@@ -60,4 +58,4 @@ jobs:
 
       - name: Clean up
         run: |
-          rm -rf /certs
+          rm -rf ~/certs
