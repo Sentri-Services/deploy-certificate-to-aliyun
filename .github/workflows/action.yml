@@ -25,6 +25,11 @@ jobs:
         run: |
           sudo snap install lego
 
+      - name: Create directory for certificates
+        run: |
+          sudo mkdir -p /certs/
+          sudo chown $USER:$USER /certs/
+
       - name: Obtain SSL Certificates
         working-directory: /certs
         env:
