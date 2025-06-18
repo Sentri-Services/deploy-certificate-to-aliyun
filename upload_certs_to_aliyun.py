@@ -54,8 +54,8 @@ def main():
         for domain in domains:
             if cdn_domain.endswith(domain):
                 break
-        cert_path = working_dir / ".lego/certificates/{domain}.crt"
-        key_path = working_dir / ".lego/certificates/{domain}.key"
+        cert_path = working_dir / f".lego/certificates/{domain}.crt"
+        key_path = working_dir / f".lego/certificates/{domain}.key"
 
         assert cert_path.exists(), f"Certificate file {cert_path} does not exist"
         assert key_path.exists(), f"Key file {key_path} does not exist"
