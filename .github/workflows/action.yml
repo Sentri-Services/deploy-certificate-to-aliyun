@@ -38,11 +38,12 @@ jobs:
           ALICLOUD_ACCESS_KEY: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
           ALICLOUD_SECRET_KEY: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
         run: |
-          lego --domains="${{ secrets.SSL_DOMAINS }}" \
+          lego run \
+               --email="${{ secrets.EMAIL }}" \
+               --domains="${{ secrets.SSL_DOMAINS }}" \
                --path="${{ github.workspace }}/.lego" \
                --dns="alidns" \
-               --accept-tos \
-               run
+               --accept-tos
 
       - name: Install Python dependencies
         run: pip install -r requirements.txt
