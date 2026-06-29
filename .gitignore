@@ -23,3 +23,5 @@ TestResults.xml
 
 __pycache__
 .venv
+.env
+.lego

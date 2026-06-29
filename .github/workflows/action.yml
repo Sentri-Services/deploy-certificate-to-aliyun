@@ -2,6 +2,11 @@ name: Auto Renew and Deploy SSL Certificates
 
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry Run (true/false)'
+        required: false
+        default: 'false'
   push:
     branches:
       - main
@@ -32,33 +37,20 @@ jobs:
         with:
           tools: lego
 
-      - name: Obtain SSL Certificates
-        env:
-          DOMAINS: ${{ secrets.DOMAINS }}
-          ALICLOUD_ACCESS_KEY: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
-          ALICLOUD_SECRET_KEY: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
-        run: |
-          lego run \
-               --email="${{ secrets.EMAIL }}" \
-               --domains="${{ secrets.SSL_DOMAINS }}" \
-               --path="${{ github.workspace }}/.lego" \
-               --dns="alidns" \
-               --accept-tos
-
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      - name: Upload certificates to Alibaba Cloud CDN
+      - name: Obtain and Upload certificates to Alibaba Cloud CDN
         env:
           ALIYUN_ACCESS_KEY_ID: ${{ secrets.ALIYUN_ACCESS_KEY_ID }}
           ALIYUN_ACCESS_KEY_SECRET: ${{ secrets.ALIYUN_ACCESS_KEY_SECRET }}
-          # 要设置域名的二级域名，例如要设置*.example.com，这里填写的就是example.com, 多个域名用英文逗号隔开
-          DOMAINS: ${{ secrets.DOMAINS }}
-          # 设置阿里云cdn域名，一般是三级域名，例如cdn.example.com，需要跟上面的DOMAINS对应，否则会设置错误
+          # 设置阿里云cdn域名，一般是三级域名，例如cdn.example.com，多个域名以英文逗号隔开
           ALIYUN_CDN_DOMAINS: ${{ secrets.ALIYUN_CDN_DOMAINS }}
           WORKING_DIR: ${{ github.workspace }}
+          EMAIL: ${{ secrets.EMAIL }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
 
-        run: python upload_certs_to_aliyun.py
+        run: python renew_and_deploy_certs.py
 
       - name: Clean up
         run: |

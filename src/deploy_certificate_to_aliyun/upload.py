@@ -1,69 +1,53 @@
-import datetime
-import os
-from pathlib import Path
-from aliyunsdkcore.client import AcsClient
-from aliyunsdkcdn.request.v20180510 import SetCdnDomainSSLCertificateRequest
+from .config import get_settings
+from .lego import obtain_certificates, get_cert_name
+from .aliyun import get_aliyun_client, upload_certificate
+import shutil
 
 
-def get_env_var(key):
-    value = os.getenv(key)
-    if not value:
-        raise EnvironmentError(f"Environment variable {key} not set")
-    return value
+def main() -> None:
+    # 1. Load settings and validate
+    settings = get_settings()
 
+    # 2. Invoke lego to obtain/check certificates
+    obtain_certificates(settings)
 
-def upload_certificate(client, domain_name, cert_path, key_path):
-    if not cert_path.exists() or not key_path.exists():
-        raise FileNotFoundError(
-            f"Certificate or key file for domain {domain_name} is missing or empty"
-        )
+    # 3. Initialize Aliyun client
+    client = get_aliyun_client(settings)
 
-    with open(cert_path, "r") as f:
-        cert = f.read()
-
-    with open(key_path, "r") as f:
-        key = f.read()
-
-    request = SetCdnDomainSSLCertificateRequest.SetCdnDomainSSLCertificateRequest()
-    # CDN加速域名
-    request.set_DomainName(domain_name)
-    # 证书名称
-    request.set_CertName(domain_name + "-" + datetime.datetime.now().strftime("%Y%m%d"))
-    request.set_CertType("upload")
-    request.set_SSLProtocol("on")
-    request.set_SSLPub(cert)
-    request.set_SSLPri(key)
-    request.set_CertRegion("cn-hangzhou")
-
-    response = client.do_action_with_exception(request)
-    print(str(response, encoding="utf-8"))
-
-
-def main():
-    access_key_id = get_env_var("ALIYUN_ACCESS_KEY_ID")
-    access_key_secret = get_env_var("ALIYUN_ACCESS_KEY_SECRET")
-    domains = get_env_var("DOMAINS").split(",")
-    cdn_domains = get_env_var("ALIYUN_CDN_DOMAINS").split(",")
-    working_dir = get_env_var("WORKING_DIR")
-    working_dir = Path(working_dir)
-    assert working_dir.exists()
-
-    client = AcsClient(access_key_id, access_key_secret, "cn-hangzhou")
-
-    for cdn_domain in cdn_domains:
-        for domain in domains:
+    # 4. Upload certificates for each CDN domain
+    for cdn_domain in settings.cdn_domains_list:
+        matched_domain = None
+        for domain in settings.domains_list:
             if cdn_domain.endswith(domain):
+                matched_domain = domain
                 break
-        cert_path = working_dir / f".lego/certificates/{domain}.crt"
-        key_path = working_dir / f".lego/certificates/{domain}.key"
+
+        if not matched_domain:
+            print(
+                f"Skipping upload for {cdn_domain}: No matching domain in DOMAINS config"
+            )
+            continue
+
+        cert_name = get_cert_name(matched_domain, settings.ssl_domains_list)
+        cert_path = settings.working_dir / f".lego/certificates/{cert_name}.crt"
+        key_path = settings.working_dir / f".lego/certificates/{cert_name}.key"
 
         assert cert_path.exists(), f"Certificate file {cert_path} does not exist"
         assert key_path.exists(), f"Key file {key_path} does not exist"
         try:
-            upload_certificate(client, cdn_domain, cert_path, key_path)
+            print(f"Uploading certificate {cert_name} for CDN domain {cdn_domain}")
+            upload_certificate(
+                client, cdn_domain, cert_path, key_path, dry_run=settings.dry_run
+            )
         except Exception as e:
             print(f"Failed to upload certificate for {cdn_domain}: {e}")
             continue
+
+    # 5. Clean up .lego directory after successful upload
+    lego_dir = settings.working_dir / ".lego"
+    if lego_dir.exists():
+        print(f"Removing .lego directory at {lego_dir}")
+        shutil.rmtree(lego_dir)
 
 
 if __name__ == "__main__":
