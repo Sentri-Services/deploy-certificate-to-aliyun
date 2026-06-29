@@ -4,9 +4,9 @@ on:
   workflow_dispatch:
     inputs:
       dry_run:
-        description: 'Dry Run (true/false)'
+        description: "Dry Run (true/false)"
         required: false
-        default: 'false'
+        default: "false"
   push:
     branches:
       - main
@@ -21,13 +21,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b # v8.1.0
+        with:
+          enable-cache: true
 
       - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: "3.8"
+        run: uv python install
 
       - name: Set up Homebrew
         id: set-up-homebrew
@@ -37,8 +39,8 @@ jobs:
         with:
           tools: lego
 
-      - name: Install Python dependencies
-        run: pip install -r requirements.txt
+      - name: Install the project
+        run: uv sync --locked --all-extras --dev
 
       - name: Obtain and Upload certificates to Alibaba Cloud CDN
         env:
@@ -50,7 +52,7 @@ jobs:
           EMAIL: ${{ secrets.EMAIL }}
           DRY_RUN: ${{ github.event.inputs.dry_run || 'false' }}
 
-        run: python renew_and_deploy_certs.py
+        run: uv run renew_and_deploy_certs.py
 
       - name: Clean up
         run: |
